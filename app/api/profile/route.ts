@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { createSession, setSessionCookie } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
+export const dynamic = "force-dynamic";
 const BIO_MAX = 160;
 const USERNAME_PATTERN = /^[a-zA-Z0-9_]+$/;
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
+export const dynamic = "force-dynamic";
 const MIN_PASSWORD_LENGTH = 8;
 
 export async function PATCH(request: NextRequest) {
