@@ -18,14 +18,25 @@ function estimateReadTime(content: string): number {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+
     const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
-    const limit = Math.min(MAX_PAGE_SIZE, Math.max(1, parseInt(searchParams.get("limit") ?? String(DEFAULT_PAGE_SIZE), 10)));
+    const limit = Math.min(
+      MAX_PAGE_SIZE,
+      Math.max(
+        1,
+        parseInt(searchParams.get("limit") ?? String(DEFAULT_PAGE_SIZE), 10)
+      )
+    );
+
     const skip = (page - 1) * limit;
 
     const [articles, total] = await Promise.all([
       prisma.article.findMany({
         where: { statusId: 1 },
-        include: { author: { select: { id: true, name: true } }, _count: { select: { likes: true } } },
+        include: {
+          author: { select: { id: true, name: true } },
+          _count: { select: { likes: true } },
+        },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
@@ -33,11 +44,14 @@ export async function GET(request: NextRequest) {
       prisma.article.count({ where: { statusId: 1 } }),
     ]);
 
-    const items = articles.map((a) => ({
+    const items = articles.map((a: typeof articles[number]) => ({
       id: a.id,
       title: a.title,
       excerpt: excerptFromContent(a.content),
-      author: { id: a.author.id, name: a.author.name },
+      author: {
+        id: a.author.id,
+        name: a.author.name,
+      },
       publishedAt: a.createdAt,
       readTimeMinutes: estimateReadTime(a.content),
       likeCount: a._count?.likes ?? 0,
@@ -45,10 +59,18 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       items,
-      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error("GET /api/articles error:", error);
-    return NextResponse.json({ error: "Failed to fetch articles" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch articles" },
+      { status: 500 }
+    );
   }
 }
