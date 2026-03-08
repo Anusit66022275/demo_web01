@@ -16,6 +16,8 @@ type ProfileHeaderProps = {
     bio: string;
     followersCount: string;
     followingCount: string;
+    isOwnProfile: boolean;
+    username: string | null;
 };
 
 export default function ProfileHeader({
